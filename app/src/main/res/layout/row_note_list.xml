@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_padding_small"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/text_view_note_date_created_or_created_and_modified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:gravity="left"
+        android:textStyle="italic"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="@dimen/text_size_normal" />
+
+    <TextView
+        android:id="@+id/text_view_note_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-bold"
+        android:gravity="left"
+        android:textSize="@dimen/text_size_xnormal" />
+
+
+</LinearLayout>
