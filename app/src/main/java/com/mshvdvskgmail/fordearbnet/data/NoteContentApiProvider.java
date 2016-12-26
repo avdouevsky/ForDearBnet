@@ -30,36 +30,36 @@ public class NoteContentApiProvider {
 
     private CallBack listener;
     private SessionOpener openSessionListener;
-    private boolean isConnected = false;
     private String noteContent;
     private String result;
     private String API_URL = "https://bnet.i-partner.ru/testAPI/";
-    private String id;
+    //private String id; // нужна если хотим прочесть id созданной заметки для редактирования, удаления или сохранения в локальной бд
     private ArrayList<JSONObject> jsonList = new ArrayList<>();
-    private String sessionKey = "qLxl9bGXELkCkfpHh7";
-    private String managerSessionKey;
     private DatabaseHelper db;
     private String sessionKeyFromDb;
 
 
-
-
-    public NoteContentApiProvider(CallBack listener, String managerSessionKey, SessionOpener openSessionListener, DatabaseHelper db) {
+    public NoteContentApiProvider(CallBack listener, SessionOpener openSessionListener, DatabaseHelper db) {
         this.listener = listener;
-        this.managerSessionKey = managerSessionKey;
         this.openSessionListener = openSessionListener;
         this.db = db;
     }
 
-    NoteContentApiProvider(String noteContent, DatabaseHelper db) {
+    NoteContentApiProvider(String noteContent, DatabaseHelper db, CallBack listener) {
         this.noteContent = noteContent;
         this.db = db;
+        this.listener = listener;
     }
 
-    public String create() {
-        NoteCreator a = new NoteCreator();
-        a.execute();
-        return id;
+    public void create() {
+        try{
+            sessionKeyFromDb = db.findSessionKey();
+        } catch (Exception e){}
+        if (sessionKeyFromDb==null){
+            sessionKeyFromDb = "";
+        }
+        NoteCreator creatorTask = new NoteCreator();
+        creatorTask.execute();
     }
 
     public void getAllNotes(){
@@ -67,32 +67,22 @@ public class NoteContentApiProvider {
             sessionKeyFromDb = db.findSessionKey();
         } catch (Exception e){}
 
-        if (sessionKeyFromDb==null||sessionKey.equals("")){
-            SessionKeyGetter b = new SessionKeyGetter();
-            b.execute();
+        if (sessionKeyFromDb==null||sessionKeyFromDb.equals("")){
+            SessionKeyGetter sessionTask = new SessionKeyGetter();
+            sessionTask.execute();
         }else {
-            AllNotesGetter a = new AllNotesGetter();
-            a.execute(sessionKeyFromDb);
+            AllNotesGetter notesTask = new AllNotesGetter();
+            notesTask.execute(sessionKeyFromDb);
         }
     }
 
-    /*
-    public void startSession(){
-        SessionKeyGetter a = new SessionKeyGetter();
-        a.execute();
-    }
-    */
 
     class NoteCreator extends AsyncTask {
 
+        private boolean isConnected = false;
+
         @Override
         protected Object doInBackground(Object[] params) {
-
-            try{
-                sessionKeyFromDb = db.findSessionKey();
-            } catch (Exception e){}
-
-
             try {
 
                 URL url = new URL(API_URL);
@@ -110,6 +100,8 @@ public class NoteContentApiProvider {
                 outputPost.flush();
                 outputPost.close();
 
+                isConnected = true;
+
                 try {
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     StringBuilder stringBuilder = new StringBuilder();
@@ -118,9 +110,10 @@ public class NoteContentApiProvider {
                         stringBuilder.append(line).append("\n");
                     }
                     bufferedReader.close();
-                    JSONObject JSONInfoOnActor = new JSONObject(stringBuilder.toString());
-                    id = JSONInfoOnActor.getString("id");
-                    //hook = stringBuilder.toString();
+
+                    //JSONObject JSONInfoOnActor = new JSONObject(stringBuilder.toString()); // нужна если хотим прочесть id созданной заметки для редактирования, удаления или сохранения в локальной бд;
+                    //id = JSONInfoOnActor.getString("id"); // нужна если хотим прочесть id созданной заметки для редактирования, удаления или сохранения в локальной бд;
+
                     return stringBuilder.toString();
                 } finally {
                     urlConnection.disconnect();
@@ -128,8 +121,6 @@ public class NoteContentApiProvider {
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage(), e);
                 result = e.getMessage();
-                //hook += "\n" + result;
-
                 return null;
             }
         }
@@ -139,20 +130,22 @@ public class NoteContentApiProvider {
                 response = "THERE WAS AN ERROR";
             }
             Log.i("INFO", (String) response);
-
+            if (!isConnected){
+                listener.onFailedConnection(null);
+            } else {
+                listener.onTaskCompleted(null);
+            }
         }
     }
 
     class AllNotesGetter extends AsyncTask <String, String, String> {
 
-        List<Note> notes = new ArrayList<Note>();
-
+        private List<Note> notes = new ArrayList<Note>();
+        private boolean isConnected = false;
 
         @Override
         protected String doInBackground(String... params)  {
-            String s = params[0];
-
-
+            String sessionKey = params[0];
             try {
 
                 URL url = new URL(API_URL);
@@ -161,10 +154,10 @@ public class NoteContentApiProvider {
                 urlConnection.setRequestProperty("token", Constants.TOKEN);
                 urlConnection.setDoOutput(true);
 
-                String argLine = new String("a=get_entries&session="+s);
+                String argLine = new String("a=get_entries&session="+sessionKey);
                 byte[] out = argLine.getBytes();
 
-                result = "argLine is: "+argLine;
+                result = "argLine is: " + argLine;
 
                 OutputStream outputPost = new BufferedOutputStream(urlConnection.getOutputStream());
                 outputPost.write(out);
@@ -181,23 +174,14 @@ public class NoteContentApiProvider {
                     }
                     bufferedReader.close();
 
-                    //result = stringBuilder.toString();
+                    JSONObject APIrespose = new JSONObject(stringBuilder.toString());
+                    JSONArray JSONData = APIrespose.getJSONArray("data");
+                    String DataFormatterToArray = JSONData.toString().substring(1, JSONData.toString().length() - 1);
+                    JSONArray notesArray = new JSONArray(DataFormatterToArray);
 
-                    JSONObject JSONInfoOnActor = new JSONObject(stringBuilder.toString());
-                    JSONArray array0 = JSONInfoOnActor.getJSONArray("data");
-
-                    //result = array0.toString();
-
-                    String array = array0.toString().substring(1, array0.toString().length() - 1);
-
-                    //result = array;
-
-                    JSONArray array1 = new JSONArray(array);
-
-                    for (int i = 0; i < array1.length(); i++) {
-                        jsonList.add(array1.getJSONObject(i));
+                    for (int i = 0; i < notesArray.length(); i++) {
+                        jsonList.add(notesArray.getJSONObject(i));
                     }
-
                     result += "\n"+"and string builder got "+stringBuilder.toString();
 
                 } finally {
@@ -206,9 +190,7 @@ public class NoteContentApiProvider {
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage(), e);
                 result+= "\n"+e.getMessage();
-                //return null;
             }
-
 
 
             try{
@@ -217,12 +199,9 @@ public class NoteContentApiProvider {
                         notes.add(Note.getNoteFromJsonObject(jsonList.get(i)));
                     }
                 }
-            } catch (Exception e) {
-
-            }
+            } catch (Exception e) {}
 
             return result;
-
 
         }
 
@@ -231,53 +210,50 @@ public class NoteContentApiProvider {
             if (response == null) {
                 response = "THERE WAS AN ERROR";
             }
-            //progressBar.setVisibility(View.GONE);
             Log.i("INFO", response);
             if (isConnected == true){
                 listener.onTaskCompleted(notes);
             } else {
                 listener.onFailedConnection(result);
             }
-            //listener.onFailedConnection(response);
         }
     }
     class SessionKeyGetter extends AsyncTask <String, String, String> {
 
-        String sessionKeyHolder;
+        private String sessionKeyHolder;
+
         @Override
         protected String doInBackground(String... params) {
             try {
+                URL url = new URL(API_URL);
+                HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("token", Constants.TOKEN);
+                urlConnection.setDoOutput(true);
 
-                URL url1 = new URL(API_URL);
-                HttpsURLConnection urlConnection1 = (HttpsURLConnection) url1.openConnection();
-                urlConnection1.setRequestMethod("POST");
-                urlConnection1.setRequestProperty("token","IBZPqL9-Gl-wcS56BM");
-                urlConnection1.setDoOutput(true);
+                String argLine = new String("a=new_session");
+                byte[] out = argLine.getBytes();
 
-                String argLine1 = new String("a=new_session");
-                byte[] out1 = argLine1.getBytes();
-
-                OutputStream outputPost1 = new BufferedOutputStream(urlConnection1.getOutputStream());
-                outputPost1.write(out1);
-                outputPost1.flush();
-                outputPost1.close();
+                OutputStream outputPost = new BufferedOutputStream(urlConnection.getOutputStream());
+                outputPost.write(out);
+                outputPost.flush();
+                outputPost.close();
 
                 try {
-                    BufferedReader bufferedReader1 = new BufferedReader(new InputStreamReader(urlConnection1.getInputStream()));
-                    StringBuilder stringBuilder1 = new StringBuilder();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder stringBuilder = new StringBuilder();
                     String line1;
-                    while ((line1 = bufferedReader1.readLine()) != null) {
-                        stringBuilder1.append(line1).append("\n");
+                    while ((line1 = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line1).append("\n");
                     }
-                    bufferedReader1.close();
+                    bufferedReader.close();
 
-                    JSONObject JSONInfoOnActor1 = new JSONObject(stringBuilder1.toString());
-                    JSONObject temp1 = JSONInfoOnActor1.getJSONObject("data");
-                    sessionKeyHolder = temp1.getString("session");
-                    sessionKey = temp1.getString("session");
+                    JSONObject JSONInfoOnActor = new JSONObject(stringBuilder.toString());
+                    JSONObject temp = JSONInfoOnActor.getJSONObject("data");
+                    sessionKeyHolder = temp.getString("session");
                     return  sessionKeyHolder;
                 } finally{
-                    urlConnection1.disconnect();
+                    urlConnection.disconnect();
                 }
             }
             catch(Exception e) {

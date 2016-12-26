@@ -5,5 +5,5 @@ package com.mshvdvskgmail.fordearbnet.interfaces;
  */
 
 public interface SessionOpener {
-    public void onSessionKeyGenerated (String sessionKey);
+    void onSessionKeyGenerated (String sessionKey);
 }

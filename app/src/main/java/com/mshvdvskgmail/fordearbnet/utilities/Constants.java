@@ -11,8 +11,4 @@ public class Constants {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_SESSION_KEY = "session_key";
 
-    public static final String[] COLUMNS = {
-            Constants.COLUMN_ID,
-            Constants.COLUMN_SESSION_KEY
-    };
 }

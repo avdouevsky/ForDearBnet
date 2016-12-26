@@ -3,6 +3,7 @@ package com.mshvdvskgmail.fordearbnet.fragments;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -18,17 +19,20 @@ import android.widget.Toast;
 import com.mshvdvskgmail.fordearbnet.R;
 import com.mshvdvskgmail.fordearbnet.activities.MainActivity;
 import com.mshvdvskgmail.fordearbnet.data.NoteManager;
+import com.mshvdvskgmail.fordearbnet.interfaces.CallBack;
 import com.mshvdvskgmail.fordearbnet.models.Note;
+
+import java.util.List;
 
 /**
  * Created by mshvd_000 on 12.12.2016.
  */
 
-public class
-NotePlainEditorFragment extends Fragment  {
+public class NotePlainEditorFragment extends Fragment implements CallBack {
     private View mRootView;
     private EditText mContentEditText;
     private Note mCurrentNote = null;
+    private AlertDialog alert;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,10 +82,7 @@ NotePlainEditorFragment extends Fragment  {
                 break;
             case R.id.action_save:
                 //save note
-                if (saveNote()){
-                    makeToast(mCurrentNote !=  null ? "Note updated" : "Note saved");
-                }
-                break;
+                saveNote();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -96,8 +97,7 @@ NotePlainEditorFragment extends Fragment  {
 
         Note note = new Note();
         note.setContent(content);
-        NoteManager.newInstance(getActivity()).create(note);
-
+        NoteManager.newInstance(getActivity()).create(note, this);
         return true;
 
     }
@@ -139,5 +139,35 @@ NotePlainEditorFragment extends Fragment  {
         alertDialog.show();
     }
 
+    public void promptForConnectionCheck(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+        alertDialog.setTitle("No internet connection");
+        alertDialog.setMessage("Failed to connect to the server. Please, check you network.");
+        alertDialog.setPositiveButton("Refresh", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                saveNote();
+            }
+        });
+        alertDialog.setNegativeButton("Wi-Fi Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+            }
+        });
+        alert = alertDialog.create();
+        alert.show();
+    }
 
+
+    @Override
+    public void onTaskCompleted(List<Note> values) {
+        makeToast("Note saved");
+        startActivity(new Intent(getActivity(), MainActivity.class));
+    }
+
+    @Override
+    public void onFailedConnection(String result) {
+        promptForConnectionCheck();
+    }
 }

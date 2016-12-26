@@ -1,12 +1,7 @@
 package com.mshvdvskgmail.fordearbnet.models;
 
-import android.database.Cursor;
-
-import com.mshvdvskgmail.fordearbnet.utilities.Constants;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,7 +20,6 @@ public class Note implements Serializable {
     private String content;
     private Calendar dateCreated;
     private Calendar dataModified;
-    //private long dateCreatedMillis;
 
 
     public String getReadableCreatedDate(){
@@ -64,15 +58,6 @@ public class Note implements Serializable {
             return content;
         }
     }
-
-
-    /*public long getDateCreatedMillis() {
-        return dateCreatedMillis;
-    }
-
-    public void setDateCreatedMillis(long dateCreatedMillis) {
-        this.dateCreatedMillis = dateCreatedMillis;
-    }*/
 
     public String getServerId() {
         return serverId;
@@ -138,33 +123,5 @@ public class Note implements Serializable {
 
         return note;
     }
-
-
-
-    /*
-    public static Note getNotefromCursor(Cursor cursor){
-        Note note = new Note();
-        note.setId(cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_ID)));
-        note.setTitle(cursor.getString(cursor.getColumnIndex(Constants.COLUMN_TITLE)));
-        note.setContent(cursor.getString(cursor.getColumnIndex(Constants.COLUMN_CONTENT)) + "\n" + "date created in calender"
-                + cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_CREATED_TIME)) + "\n" + "date modified in calendar"
-        + cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_MODIFIED_TIME)));
-
-        //get Calendar instance
-        Calendar calendar = GregorianCalendar.getInstance();
-        Calendar calendar1 = GregorianCalendar.getInstance();
-
-        //set the calendar time to date created
-        calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_CREATED_TIME)));
-        note.setDateCreated(calendar);
-        //note.setDateCreatedMillis(cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_CREATED_TIME)));
-
-        //set the calendar time to date modified
-        calendar1.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(Constants.COLUMN_MODIFIED_TIME)));
-        note.setDataModified(calendar1);
-        return note;
-    }
-     */
-
 
 }

@@ -44,7 +44,6 @@ public class NoteEditorActivity extends AppCompatActivity {
             } else{
                 openFragment(new NotePlainEditorFragment(), "New one");
             }
-
         }
 
     }
