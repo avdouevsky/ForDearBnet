@@ -12,3 +12,4 @@ public class Constants {
     public static final String COLUMN_SESSION_KEY = "session_key";
 
 }
+
