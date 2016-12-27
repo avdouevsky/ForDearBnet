@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mshvd_000 on 19.12.2016.
+ * interface used by NoteContentApiProvider to start fragment methods.
  */
 
 public interface CallBack {

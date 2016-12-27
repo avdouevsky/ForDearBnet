@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 
 /**
- * Created by mshvd_000 on 18.12.2016.
+ * Fragment for reading a note.
  */
 
 public class NotePlainReadOnlyFragment extends Fragment{

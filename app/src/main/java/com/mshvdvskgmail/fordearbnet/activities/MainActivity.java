@@ -8,6 +8,9 @@ import android.support.v7.widget.Toolbar;
 import com.mshvdvskgmail.fordearbnet.R;
 import com.mshvdvskgmail.fordearbnet.fragments.NoteListFragment;
 
+/**
+ *  main activity loads NoteListFragment, which provides the user with the list of notes and "creat_new" button
+ */
 
 public class MainActivity extends AppCompatActivity {
 

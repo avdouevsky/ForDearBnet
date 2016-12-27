@@ -23,13 +23,15 @@ import javax.net.ssl.HttpsURLConnection;
 
 
 /**
- * Created by mshvd_000 on 19.12.2016.
+ * This class handles all API communication, like getting session key, uploading a note
+ * and getting the list of the notes.
+ * NoteManager is managing the NoteContentApiProvider instances.
  */
 
 public class NoteContentApiProvider {
 
-    private CallBack listener;
-    private SessionOpener openSessionListener;
+    private CallBack listener; // for callback methods in fragments
+    private SessionOpener openSessionListener; // for callback method in NoteManager; saving seeion key in db
     private String noteContent;
     private String result;
     private String API_URL = "https://bnet.i-partner.ru/testAPI/";
@@ -51,6 +53,8 @@ public class NoteContentApiProvider {
         this.listener = listener;
     }
 
+    // creates a note by using nested NoteCreator AsyncTask
+
     public void create() {
         try{
             sessionKeyFromDb = db.findSessionKey();
@@ -61,6 +65,9 @@ public class NoteContentApiProvider {
         NoteCreator creatorTask = new NoteCreator();
         creatorTask.execute();
     }
+
+
+    // gets all notes by using nested AllNotesGetter AsyncTask
 
     public void getAllNotes(){
         try{
@@ -76,10 +83,11 @@ public class NoteContentApiProvider {
         }
     }
 
+    // AsyncTask for "add_entry" POST request
 
     class NoteCreator extends AsyncTask {
 
-        private boolean isConnected = false;
+        private boolean isConnected = false; // is used for callback method if there is no connection
 
         @Override
         protected Object doInBackground(Object[] params) {
@@ -88,7 +96,7 @@ public class NoteContentApiProvider {
                 URL url = new URL(API_URL);
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setRequestProperty("token", "IBZPqL9-Gl-wcS56BM");
+                urlConnection.setRequestProperty("token", Constants.TOKEN);
                 urlConnection.setDoOutput(true);
 
                 String argLine = new String("a=add_entry&session=" + sessionKeyFromDb + "&body=" + noteContent);
@@ -130,22 +138,25 @@ public class NoteContentApiProvider {
                 response = "THERE WAS AN ERROR";
             }
             Log.i("INFO", (String) response);
+
             if (!isConnected){
-                listener.onFailedConnection(null);
+                listener.onFailedConnection(null); // these are the fragment callback methods
             } else {
-                listener.onTaskCompleted(null);
+                listener.onTaskCompleted(null); // these are the fragment callback methods
             }
         }
     }
 
+    // AsyncTask for "get_entries" POST request
+
     class AllNotesGetter extends AsyncTask <String, String, String> {
 
         private List<Note> notes = new ArrayList<Note>();
-        private boolean isConnected = false;
+        private boolean isConnected = false; // the same thing
 
         @Override
         protected String doInBackground(String... params)  {
-            String sessionKey = params[0];
+            String sessionKey = params[0]; // argument is passed for a case where there is no session key yet, and AllNotesGetter is fired by SessionKeyGetter
             try {
 
                 URL url = new URL(API_URL);
@@ -174,8 +185,8 @@ public class NoteContentApiProvider {
                     }
                     bufferedReader.close();
 
-                    JSONObject APIrespose = new JSONObject(stringBuilder.toString());
-                    JSONArray JSONData = APIrespose.getJSONArray("data");
+                    JSONObject APIresponse = new JSONObject(stringBuilder.toString());
+                    JSONArray JSONData = APIresponse.getJSONArray("data");
                     String DataFormatterToArray = JSONData.toString().substring(1, JSONData.toString().length() - 1);
                     JSONArray notesArray = new JSONArray(DataFormatterToArray);
 
@@ -218,6 +229,9 @@ public class NoteContentApiProvider {
             }
         }
     }
+
+    // AsyncTask for "new_session" POST request
+
     class SessionKeyGetter extends AsyncTask <String, String, String> {
 
         private String sessionKeyHolder;

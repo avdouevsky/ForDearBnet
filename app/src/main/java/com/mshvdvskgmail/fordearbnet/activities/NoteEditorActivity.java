@@ -14,7 +14,9 @@ import com.mshvdvskgmail.fordearbnet.models.Note;
 import java.io.Serializable;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ * This activity is responsible for creating showing and notes.
+ * NotePlainReadOnlyFragment is started to view a note,
+ * NotePlainEditorFragment is for creating a note.
  */
 
 public class NoteEditorActivity extends AppCompatActivity {

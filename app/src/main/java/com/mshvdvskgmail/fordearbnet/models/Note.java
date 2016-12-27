@@ -9,14 +9,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 /**
- * Created by mshvd_000 on 12.12.2016.
+ * Model for note.
  */
 
 public class Note implements Serializable {
 
     private Long id;
     private String serverId;
-    private String title;
     private String content;
     private Calendar dateCreated;
     private Calendar dataModified;
@@ -73,14 +72,6 @@ public class Note implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {

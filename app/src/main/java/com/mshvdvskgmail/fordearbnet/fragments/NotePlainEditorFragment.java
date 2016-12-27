@@ -25,7 +25,7 @@ import com.mshvdvskgmail.fordearbnet.models.Note;
 import java.util.List;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ * Fragment for creating a note. Might be reused as editing.
  */
 
 public class NotePlainEditorFragment extends Fragment implements CallBack {
@@ -55,33 +55,20 @@ public class NotePlainEditorFragment extends Fragment implements CallBack {
         return mRootView;
     }
 
-    public NotePlainEditorFragment newInstance(long id){
-        NotePlainEditorFragment fragment = new NotePlainEditorFragment();
-
-        if (id > 0){
-            Bundle bundle = new Bundle();
-            bundle.putLong("id", id);
-            fragment.setArguments(bundle);
-        }
-        return fragment;
-    }
+    // onOptionsItemSelected() handles cancel and save menu buttons
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_cancel:
-                //startActivity(new Intent(getActivity(), MainActivity.class));
-                //promptForDelete();
 
+            case R.id.action_cancel:
                 if (!TextUtils.isEmpty(mContentEditText.getText())){
                     promptForDelete();
                 }else {
-                    startActivity(new Intent(getActivity(), MainActivity.class)); // может вызвать хуйню
+                    startActivity(new Intent(getActivity(), MainActivity.class));
                 }
-
                 break;
             case R.id.action_save:
-                //save note
                 saveNote();
         }
         return super.onOptionsItemSelected(item);
@@ -107,7 +94,6 @@ public class NotePlainEditorFragment extends Fragment implements CallBack {
     }
 
     private void populateFields() {
-        //mTitleEditText.setText(mCurrentNote.getTitle());
         mContentEditText.setText(mCurrentNote.getContent());
     }
 
@@ -160,11 +146,15 @@ public class NotePlainEditorFragment extends Fragment implements CallBack {
     }
 
 
+    // callback method fired by APiProvider to show that it managed to upload the note
+
     @Override
     public void onTaskCompleted(List<Note> values) {
         makeToast("Note saved");
         startActivity(new Intent(getActivity(), MainActivity.class));
     }
+
+    // callback method fired by APiProvider to show that it failed to connect
 
     @Override
     public void onFailedConnection(String result) {

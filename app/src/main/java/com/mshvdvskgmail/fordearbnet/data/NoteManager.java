@@ -5,7 +5,7 @@ import com.mshvdvskgmail.fordearbnet.interfaces.SessionOpener;
 import com.mshvdvskgmail.fordearbnet.models.Note;
 
 /**
- * Created by mshvd_000 on 15.12.2016.
+ * Singleton, that operated with API and DB communicating classes.
  */
 
 public class  NoteManager implements SessionOpener {

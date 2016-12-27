@@ -1,7 +1,7 @@
 package com.mshvdvskgmail.fordearbnet.utilities;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ *  A tool for tests.
  */
 
 import com.mshvdvskgmail.fordearbnet.models.Note;
@@ -11,9 +11,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-/**
- * Created by Valentine on 9/29/2015.
- */
+
 public class SampleData {
 
     public static List<Note> getSampleNotes(){

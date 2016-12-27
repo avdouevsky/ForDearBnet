@@ -1,7 +1,7 @@
 package com.mshvdvskgmail.fordearbnet.utilities;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ *  quite obvious. also it stores the TOKEN
  */
 
 public class Constants {

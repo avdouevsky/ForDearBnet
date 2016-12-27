@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.mshvdvskgmail.fordearbnet.utilities.Constants;
 
 /**
- * Created by mshvd_000 on 24.12.2016.
+ * DB keeps the session key only.
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {

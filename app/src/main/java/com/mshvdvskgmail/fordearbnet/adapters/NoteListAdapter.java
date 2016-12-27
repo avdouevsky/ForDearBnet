@@ -10,7 +10,7 @@ import com.mshvdvskgmail.fordearbnet.models.Note;
 import java.util.List;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ * Adapter for the NoteListFragment, for determine how to display notes in the list.
  */
 
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHolder>{

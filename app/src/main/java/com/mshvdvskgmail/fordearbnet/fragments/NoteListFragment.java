@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by mshvd_000 on 12.12.2016.
+ * The fragment displays the list of notes.
  */
 
 public class NoteListFragment extends Fragment implements CallBack {
@@ -97,12 +97,14 @@ public class NoteListFragment extends Fragment implements CallBack {
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
         });
 
-        mNotes = SampleData.getSampleNotes();
+        mNotes = SampleData.getSampleNotes();  //
         mAdapter = new NoteListAdapter(mNotes);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setVisibility(View.GONE);
         refreshData();
     }
+
+    // Method is called by AlertDialog by push on "refresh" button, in case there is no connection
 
     public void refreshData(){
         NoteManager.newInstance(getActivity()).getAllNotes(this);
